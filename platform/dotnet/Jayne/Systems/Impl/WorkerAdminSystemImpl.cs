@@ -148,7 +148,7 @@ namespace Estate.Jayne.Systems.Impl
             //delete it from Serenity first because the version may be wrong.
             await _serenityService.DeleteWorkerAsync(cancellationToken, request.logContext, worker.Id, worker.Version);
 
-            //remove it from the database
+            //remove it from the MySQL database
             _accountsContext.Worker.Remove(worker);
             await _accountsContext.SaveChangesAsync(cancellationToken);
 
@@ -239,7 +239,7 @@ namespace Estate.Jayne.Systems.Impl
                 //save the index and type definition changes to the database
                 await _accountsContext.SaveChangesAsync(false, cancellationToken);
 
-                //call SetupWorker on Serenity
+                //call SetupWorker on Serenity (the Runtime)
                 await _serenityService.SetupWorkerAsync(cancellationToken, request.logContext, workerId, workerVersion,
                     previousWorkerVersion, workerIndexBytes, code.ToArray());
 
@@ -339,9 +339,10 @@ namespace Estate.Jayne.Systems.Impl
                 throw JayneErrors.BusinessLogic(BusinessLogicErrorCode.UserNotFound);
             }
 
+            // each Worker version gets its own unique API key
             var userKey = KeyUtil.GenerateUserKey();
 
-            //create it in the database
+            //create it in the database (MySQL)
             string workerName = request.workerName;
             ulong workerId;
             ulong workerVersion = 1;
@@ -379,14 +380,14 @@ namespace Estate.Jayne.Systems.Impl
             WorkerClassMapping[] classMappings;
             try
             {
-                //create the WorkerIndex
+                //create the WorkerIndex (that describes the Worker schema)
                 var result = workerIndexCreator.ParseWorkerCode(workerId, workerVersion, workerName, request.workerFiles, 
                     parsedClassMappings, request.lastClassId);
 
                 classMappings = workerIndexCreator.CreateClassMappings(result.WorkerIndex);
                 var workerIndexBytes = _protocolSerializer.SerializeWorkerIndex(result.WorkerIndex);
 
-                //Execute the pre-compilation
+                //Execute the pre-compilation (fixups)
                 var code = new List<string>();
                 foreach(var directive in result.PreCompilerDirectives)
                     code.Add(directive.PreCompile().code);
