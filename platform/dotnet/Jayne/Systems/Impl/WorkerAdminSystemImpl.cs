@@ -342,7 +342,7 @@ namespace Estate.Jayne.Systems.Impl
             // each Worker version gets its own unique API key
             var userKey = KeyUtil.GenerateUserKey();
 
-            //create it in the database (MySQL)
+            //create it in the database (AccountsDB MySQL)
             string workerName = request.workerName;
             ulong workerId;
             ulong workerVersion = 1;
@@ -408,7 +408,7 @@ namespace Estate.Jayne.Systems.Impl
 
                 await _accountsContext.SaveChangesAsync(cancellationToken);
 
-                //call SetupWorker on Serenity
+                //call SetupWorker on the Runtime ("Serenity")
                 await _serenityService.SetupWorkerAsync(cancellationToken, request.logContext, workerId, workerVersion, null,
                     workerIndexBytes, code.ToArray());
 
@@ -418,7 +418,7 @@ namespace Estate.Jayne.Systems.Impl
                 await _workerKeyCacheService.SetUserKeyAsync(userKey, workerId);
                 hasSetUserKey = true;
 
-                //cool
+                //done
                 await tx.CommitAsync(cancellationToken);
                 completed = true;
             }
