@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>Estate.Jayne.SerenityClient.Tester</AssemblyName>
+        <RootNamespace>Estate.Jayne.SerenityClient.Tester</RootNamespace>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Jayne.SerenityClient\Jayne.SerenityClient.csproj" />
+      <ProjectReference Include="..\Jayne\Jayne.csproj" />
+    </ItemGroup>
+
+</Project>

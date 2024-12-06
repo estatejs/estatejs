@@ -1,0 +1,95 @@
+﻿
+table ConstructorProto {
+    arguments: [MethodArgumentProto];
+}
+
+table MethodArgumentProto {
+    //NOTE: The name and type aren't used nor respected by the server. They're only used by the client when generating proxies.
+    name: string (required);
+    type: string (required);
+}
+
+enum MethodKindProto : ubyte {
+    Getter = 1,
+    Setter,
+    Normal
+}
+
+table MethodProto {
+    method_name: string (required);
+    method_kind: MethodKindProto = Normal;
+    arguments: [MethodArgumentProto];
+    //NOTE: The return_type isn't used nor respected by the server. It's used only by the client when generating proxies.
+    return_type: string;
+}
+
+table WorkerFileNameProto {
+    file_name_id: ushort;
+    file_name: string (required);
+}
+
+table ServiceMethodProto {
+    method_id: ushort;
+    method_name: string (required);
+    arguments: [MethodArgumentProto];
+    //NOTE: The return_type isn't used nor respected by the server. It's used only by the client when generating proxies.
+    return_type: string; 
+    //NOTE: services don't support setters/getters/gettersetters, only normal so it's not stored in the index.
+}
+
+table ServiceClassProto {
+    class_id: ushort;
+    class_name: string (required);
+    file_name_id: ushort;
+    //NOTE: Services have a known constructor signature so it's not stored in the index.
+    methods: [ServiceMethodProto] (required);
+}
+
+table DataClassProto {
+    class_id: ushort;
+    class_name: string (required);
+    source_code: string (required);
+    file_name_id: ushort;
+    ctor: ConstructorProto (required);
+    methods: [MethodProto];
+}
+
+table MessageClassProto {
+    class_id: ushort;
+    class_name: string (required);
+    source_code: string (required);
+    file_name_id: ushort;
+    ctor: ConstructorProto (required);
+    methods: [MethodProto];
+}
+
+table FreeFunctionProto {
+    source_code: string (required);
+    function_name: string;
+    arguments: [MethodArgumentProto];
+    return_type: string;
+}
+
+table FreeClassProto {
+    ctor: ConstructorProto (required);
+    source_code: string (required);
+    class_name: string;
+    methods: [MethodProto];
+}
+
+table WorkerIndexProto {
+    is_debug: bool;
+    worker_id: ulong;
+    worker_version: ulong;
+    worker_name: string (required);
+    file_names: [WorkerFileNameProto] (required);
+    worker_language: byte; //0 == JavaScript
+    free_functions: [FreeFunctionProto];
+    free_classes: [FreeClassProto];
+    service_classes: [ServiceClassProto];
+    data_classes: [DataClassProto];
+    message_classes: [MessageClassProto];
+}
+
+root_type WorkerIndexProto;
+

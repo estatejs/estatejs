@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+kubectl delete pod --grace-period=0 --force serenity-statefulset-0

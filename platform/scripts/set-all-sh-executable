@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+cd "${STACKLESS_PLATFORM_DIR}"
+rm -rf build/out
+
+function set_ex {
+	chmod +x $1 > /dev/null
+	git update-index --chmod=+x $i > /dev/null 2>&1
+}
+
+function unset_ex {
+	chmod -x $1 > /dev/null
+	git update-index --chmod=-x $i > /dev/null 2>&1
+}
+
+for i in `find ./ -type f \( -iname \*.cs -o -iname \*.js -o -iname \*.ts -name \*.json -iname \*.csproj -iname \*.txt -iname \*.cmake \)`; do
+	echo $i
+	unset_ex $i
+done
+exit 0
+
+for i in `find ./ -type f \( -iname \*.cpp -o -iname \*.h \)`; do
+	unset_ex $i
+done
+
+for i in `find ./ -type f \( -iname \*.sh \)`; do
+	set_ex $i
+done
+
+for i in `ls scripts/*`; do
+	set_ex $i
+done
+
+for i in `ls build/util/*`; do
+	set_ex $i
+done

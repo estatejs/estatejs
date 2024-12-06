@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source "../util/.functions.sh"
+
+echo
+success "Stackless Platform Build Shell"
+echo
+
+warning_n  "Warning: "
+error "This script will overwrite ${HOME}/.zshc and set your default shell to ZSH."
+echo
+
+read -p "Do you wish to install the Stackless shell? <y/N> " prompt
+if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+	if [ -f "${HOME}/.zshrc" ]; then
+		read -p "${HOME}/.zshrc already exists. Do you wish to overwrite it? <y/N> " prompt
+		if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]; then
+			cp ./zshrc ~/.zshrc
+		fi
+	else
+		cp ./zshrc ~/.zshrc
+	fi
+	cp ./stackless.env ~/.stackless.env
+	
+	echo "Changing your login shell to zsh (you will be prompted)..."
+	chsh -s `which zsh`
+	
+	if [ ! -d "${HOME}/.oh-my-zsh" ]; then
+		echo Installing oh-my-zsh...
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+		cp ./stackless.zsh-theme ${HOME}/.oh-my-zsh/themes/
+	fi
+
+	success_n "Complete"
+	echo ": Re-login to your shell or just source ~/.zshrc"
+fi

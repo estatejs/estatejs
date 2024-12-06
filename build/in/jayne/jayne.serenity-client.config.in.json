@@ -1,0 +1,25 @@
+{
+  "BufferPool": {
+    "clear_on_get": true
+  },
+  "Logging": {
+    "system": "SCLIENT",
+    "level": "{{ESTATE_LOG_LEVEL}}"
+  },
+  "InnerspaceWorkerLoader": {
+    "host": "{{ESTATE_SERENITY_HOST}}",
+    "port": {{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}},
+    "connection_count": 1,
+    "max_request_size": 100,
+    "max_response_size": 100
+  },
+  "InnerspaceClient": {
+    "host": "{{ESTATE_SERENITY_HOST}}",
+    "setup_worker_connection_count": 1,
+    "setup_worker_max_request_size": {{ESTATE_MAX_SETUP_WORKER_REQUEST}},
+    "setup_worker_max_response_size": 100,
+    "delete_worker_connection_count": 1,
+    "delete_worker_max_request_size": 100,
+    "delete_worker_max_response_size": 100
+  }
+}

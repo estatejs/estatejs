@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+if (( !ACCEPT_PUBLISH )); then
+  export DRY_RUN="--dry-run"
+fi
+
+function publish {
+    local AREA=$1
+    if list_includes "${BUILD_AREA}" "${AREA}"; then
+        local RENDER_AREA_BUILD_DIR="${RENDER_DIR}/${AREA}/build"
+
+        if [ ! -d "${RENDER_AREA_BUILD_DIR}" ] || [ ! -f "${RENDER_AREA_BUILD_DIR}/package.json" ]; then
+            error "Must build ${AREA} first"
+            exit 1
+        fi
+
+# TODO: re-enforce test stamping
+#        if (( !FORCE_PUBLISH )); then
+#            if [ ! -f "${RENDER_AREA_BUILD_DIR}/test.stamp" ]; then
+#              error "Must test ${AREA} first"
+#              exit
+#            fi
+#
+#            local AREA_TEST_STAMP
+#            AREA_TEST_STAMP="$(cat "${RENDER_AREA_BUILD_DIR}/test.stamp")"
+#            if [ "${AREA_TEST_STAMP}" != "${TEST_STAMP}" ]; then
+#              error "Test time stamp mismatch. Re-run tests against the current build."
+#              exit
+#            fi
+#        fi
+
+        pushd "${RENDER_AREA_BUILD_DIR}" > /dev/null
+        if [ -n "${DRY_RUN}" ]; then
+          dry_run_echo "====== ${AREA} publish dry-run output ======"
+          if ! bash "../${AREA}.publish.sh"; then
+            error "Failed (dry-run)"
+            exit 1
+          fi
+          success "Ok (dry-run, re-run with --accept)"
+        else
+#          echo "Logging in to npmjs interactively."
+#          if ! npm login --always-auth ; then
+#            error "Authentication required"
+#            exit 1
+#          fi
+          echo -n "Publishing ${AREA}: "
+          if ! bash "../${AREA}.publish.sh" > "../${AREA}.publish.log" 2>&1; then
+            error "Failed"
+            error "====== ${AREA}.publish.log ======"
+            cat "../${AREA}.publish.log"
+            exit 1
+          fi
+          success "Ok"
+        fi
+        popd > /dev/null
+    fi
+}
+
+if (( !IS_PRODUCTION )); then
+    error "Only production can be published."
+    exit 1
+fi
+
+
+#if (( !FORCE_PUBLISH )); then
+#    if [ ! -f "${RENDER_DIR}/test.stamp" ]; then
+#      error "Must test first"
+#      exit 1
+#    fi
+#    TEST_STAMP=$(cat "${RENDER_DIR}/test.stamp")
+#fi
+
+echo "NPM CLI publishing is broken, it must be done manually using 'npm publish' in the build directory."
+#publish client
+#publish tools

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+chmod +x ./.all.sh
+time ./.all.sh "${0}" production release "${@}"

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: river-deployment
+  labels:
+    app: river
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: river
+  template:
+    metadata:
+      labels:
+        app: river
+    spec:
+      containers:
+      - name: river
+        image: "{{ESTATE_GCR_HOST}}/{{ESTATE_GCP_PROJECT}}/{{ESTATE_RIVER_DOCKER_IMAGE}}"
+        ports:
+        - containerPort: {{ESTATE_RIVER_LISTEN_PORT}}
+          name: river-port
+        livenessProbe:
+          httpGet:
+            path: /
+            port: river-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: river-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200M
+          requests:
+            cpu: 100m
+            memory: 200M
+        securityContext:
+            capabilities:
+              add: ["IPC_LOCK"]
+        volumeMounts:
+          - name: "river-config-volume"
+            mountPath: /etc/estate
+      volumes:
+        - name: "river-config-volume"
+          configMap:
+              name: "river-configmap"

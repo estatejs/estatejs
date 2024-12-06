@@ -1,0 +1,60 @@
+{
+  "name": "",
+  "private": "true",
+  "main": "index.js",
+  "scripts": {
+    "_build-local-debug": "./build.sh local debug",
+    "_build-production-release": "./build.sh production release",
+    "build": "npm run _build-local-debug",
+    "setupdbg": "npm run build && rimraf $HOME/exercise-tracker && mkdir $HOME/exercise-tracker",
+    "start": "node $HOME/s/framework/tools/dist/index.js",
+    "estate-init": "cd $HOME/exercise-tracker && node $HOME/s/framework/tools/dist/index.js init .",
+    "worker-init": "cd $HOME/exercise-tracker && $HOME/s/framework/tools/dist/index.js worker init",
+    "worker-deploy": "cd $HOME/exercise-tracker && $HOME/s/framework/tools/dist/index.js worker deploy",
+    "worker-connect": "cd $HOME/exercise-tracker/client && rm -rf .estate; $HOME/s/framework/tools/dist/index.js worker connect",
+    "worker-delete": "npm run build && node ./dist/index.js worker delete exercise-tracker --yes-im-sure-i-want-to-delete-this-worker",
+    "worker-list": "npm run build && node ./dist/index.js worker list",
+    "account-delete": "npm run build && node ./dist/index.js account delete",
+    "account-login": "npm run build && node ./dist/index.js account login --overwrite"
+  },
+  "bin": {
+    "estate": "index.js"
+  },
+  "keywords": [],
+  "author": "Warpdrive Technologies, Inc.",
+  "license": "Apache-2.0",
+  "description": "Estate Developer Tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estatejs/estate",
+    "directory": "tools"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.0",
+    "@types/degit": "^2.8.3",
+    "@types/figlet": "^1.2.0",
+    "@types/firebase": "^3.2.1",
+    "@types/inquirer": "^6.5.0",
+    "@types/mustache": "^4.0.1",
+    "@types/node": "^18.11.17",
+    "@types/node-emoji": "^1.8.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.10.2"
+  },
+  "dependencies": {
+    "ascii-box": "^1.1.2",
+    "chalk": "^4.1.0",
+    "commander": "^9.4.0",
+    "crc-32": "^1.2.0",
+    "cross-fetch": "^3.1.5",
+    "figlet": "^1.4.0",
+    "firebase": "^9.8.2",
+    "flatbuffers": "2.0.4",
+    "inquirer": "^7.1.0",
+    "mustache": "^4.0.1",
+    "path": "^0.12.7",
+    "typescript": "4.7.2",
+    "jszip": "^3.10.1",
+    "cli-progress": "3.11.2"
+  }
+}

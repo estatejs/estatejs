@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rediskeys-statefuleset
+spec:
+  selector:
+    matchLabels:
+      app: rediskeys
+  serviceName: rediskeys-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rediskeys
+    spec:
+      containers:
+        - name: redis
+          image: redis:3.2-alpine
+          imagePullPolicy: Always
+          args: ["--appendonly", "yes", "--save", "900", "1", "--save", "30", "2"]
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200M
+            requests:
+              cpu: 100m
+              memory: 200M
+          ports:
+            - containerPort: 6379
+              name: redis
+          readinessProbe:
+            tcpSocket:
+              port: redis
+            timeoutSeconds: 5
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            timeoutSeconds: 5
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: rediskeys-persistent-storage
+              mountPath: /data
+      volumes:
+        - name: rediskeys-persistent-storage
+          persistentVolumeClaim:
+            claimName: rediskeys-volumeclaim
+            readOnly: false

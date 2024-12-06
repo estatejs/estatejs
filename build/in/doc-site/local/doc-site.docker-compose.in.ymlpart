@@ -1,0 +1,6 @@
+  doc-site:
+    healthcheck:
+      test: curl -f http://localhost:80
+    image: {{ESTATE_DOCSITE_DOCKER_IMAGE}}
+    ports:
+      - "{{ESTATE_DOCSITE_LISTEN_PORT}}:80"

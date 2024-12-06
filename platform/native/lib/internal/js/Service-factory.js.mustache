@@ -1,0 +1,12 @@
+import { {{{CLASS_NAME}}} } from "{{{MODULE_NAME}}}";
+class @@@PASSTHROUGH_CLASS_NAME_PREFIX@@@{{{CLASS_NAME}}} extends @@@EXISTING_WORKER_SERVICE_CTOR@@@ {
+    constructor(primaryKey) { super(primaryKey); }
+}
+export function @@@GRAFT_FUNC_PREFIX@@@{{{CLASS_ID}}}(primaryKey){
+    const obj = new @@@PASSTHROUGH_CLASS_NAME_PREFIX@@@{{{CLASS_NAME}}}(primaryKey);
+    if(Reflect.setPrototypeOf(obj,{{{CLASS_NAME}}}.prototype))
+        return obj;
+}
+export function @@@NEW_FUNC_PREFIX@@@{{{CLASS_ID}}}(primaryKey){
+    return new {{{CLASS_NAME}}}(primaryKey);
+}

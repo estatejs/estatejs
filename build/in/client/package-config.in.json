@@ -1,0 +1,4 @@
+{ 
+    "name": "{{ESTATE_CLIENT_PACKAGE_NAME}}",
+    "private": {{ESTATE_CLIENT_PACKAGE_PRIVATE}}
+}

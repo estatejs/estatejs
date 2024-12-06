@@ -1,0 +1,1 @@
+import { @@@EXISTING_WORKER_OBJECT_CTOR@@@ } from "@@@SERVER_INTERNAL_MODULE@@@";

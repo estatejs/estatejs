@@ -1,0 +1,4 @@
+resources:
+  - rediskeys-volumeclaim.yaml
+  - rediskeys-statefulset.yaml
+  - rediskeys-service.yaml

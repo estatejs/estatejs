@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "serenity-statefulset"
+  labels:
+    app: "serenity"
+spec:
+  serviceName: serenity-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "serenity"
+  volumeClaimTemplates:
+    - metadata:
+        name: "serenity-db-volume"
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "serenity-storageclass"
+        resources:
+          requests:
+            storage: 100Gi
+  template:
+    metadata:
+      labels:
+        app: "serenity"
+    spec:
+      terminationGracePeriodSeconds: 1800
+      volumes:
+        - name: "serenity-config-volume"
+          configMap:
+              name: "serenity-configmap"
+      containers:
+        - name: "serenity"
+          image: "{{ESTATE_GCR_HOST}}/{{ESTATE_GCP_PROJECT}}/{{ESTATE_SERENITY_DOCKER_IMAGE}}"
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh","-c","pkill {{ESTATE_SERENITY_DAEMON}}"]
+          livenessProbe:
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            exec:
+              command:
+                - "bash"
+                - '/serenity/healthy.sh'
+          readinessProbe:
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            exec:
+              command:
+                - "bash"
+                - '/serenity/healthy.sh'
+          resources:
+              limits:
+                cpu: 100m
+                memory: 200M
+              requests:
+                cpu: 100m
+                memory: 200M
+          securityContext:
+              capabilities:
+                add: ["IPC_LOCK"]
+          volumeMounts:
+            - name: "serenity-db-volume"
+              mountPath: /var/estate/db
+            - name: "serenity-config-volume"
+              mountPath: /etc/estate
+          ports:
+          - containerPort: {{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}}
+            name: gwse
+          # NOTE: spec.template.spec.containers[0].ports must remain the last element in this file because I'm appending worker process port definitions in serenity.post-render.in.sh.

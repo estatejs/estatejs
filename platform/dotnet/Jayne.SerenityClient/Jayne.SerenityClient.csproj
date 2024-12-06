@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>Estate.Jayne.SerenityClient</AssemblyName>
+        <RootNamespace>Estate.Jayne.SerenityClient</RootNamespace>
+        <Nullable>disable</Nullable>
+        <Title>Estate Serenity Client</Title>
+        <Authors>Scott Jones</Authors>
+        <Company>Warpdrive Technologies, Inc.</Company>
+        <Product>Estate Serenity Client</Product>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Jayne.Common\Jayne.Common.csproj" />
+        <ProjectReference Include="..\Jayne.Protocol\Jayne.Protocol.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.0" />
+    </ItemGroup>
+</Project>

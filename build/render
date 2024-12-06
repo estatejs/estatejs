@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+RENDER_STAMP=$(date -Is)
+MO="${STACKLESS_BUILD_DIR}/util/mo"
+
+function generate_test_credentials {
+  local output_file=${1}
+  if [ -z "${output_file}" ]; then
+    error "missing output_file argument"
+    exit 1
+  fi
+
+  echo -n "Generating Test Credentials: "
+
+  function gen_id() {
+    local id
+    id=${1}$(uuidgen -r)$(uuidgen -r)
+    id=${id//-/}
+    id=${id:0:${2}}
+    eval "$3=${id}"
+  }
+
+  user_id=""
+  gen_id "test" 64 user_id
+  email_user=""
+  gen_id "test" 32 email_user
+  email_domain=""
+  gen_id "test" 32 email_domain
+  password=""
+  gen_id "" 64 password
+  
+  {
+    echo "## Test Credentials ##"
+    echo "STACKLESS_TEST_USERID='${user_id}'"
+    echo "STACKLESS_TEST_EMAIL='${email_user}@${email_domain}.local'"
+    echo "STACKLESS_TEST_PASSWORD='${password}'"
+  } >> "${output_file}"
+
+  success "Ok"
+}
+export -f generate_test_credentials
+
+function render_area {
+  export AREA=${1}
+  local Area=$(get_area_pcase $AREA)
+  if list_includes "${BUILD_AREA}" "${AREA}"; then   
+    echo -n "Rendering ${Area}: "
+    
+    if is_area_disabled ${AREA}; then
+      warning "Disabled"
+      return
+    fi
+
+    export RENDER_AREA_DIR="${RENDER_DIR}/${AREA}"
+
+    rm -rf "${RENDER_AREA_DIR}"
+
+    local in_area_dirs=("in/${AREA}")
+    if (( IS_LOCAL )); then
+      if [ -d "in/${AREA}/local" ]; then
+        in_area_dirs+=("in/${AREA}/local")
+      fi
+    else
+      if [ -d "in/${AREA}/remote" ]; then
+        in_area_dirs+=("in/${AREA}/remote")
+      fi
+    fi
+    ANYTHING_FOUND=false
+    for in_area_dir in "${in_area_dirs[@]}"
+    do
+      files=$(shopt -s nullglob dotglob; echo ${in_area_dir}/*.in.*)
+      if (( ${#files} ));	then
+        mkdir -p "${RENDER_AREA_DIR}"
+        if [ -f "${in_area_dir}/${AREA}.pre-render.in.sh" ]; then
+          cat "${in_area_dir}/${AREA}.pre-render.in.sh" \
+            | ${MO} --source="${RENDER_DIR}/source.conf" \
+            > "${RENDER_AREA_DIR}/${AREA}.pre-render.sh"
+          maybe_run_script "${RENDER_AREA_DIR}" "${AREA}.pre-render" "Executing pre-render hook for ${AREA}" quiet
+          ADDITIONAL_MO_SOURCE=--source="${RENDER_AREA_DIR}/${AREA}.pre-render.env"
+        fi
+        for f in "${in_area_dir}"/*.in.*; do
+          cat "$f" | ${MO} --source="${RENDER_DIR}/source.conf" ${ADDITIONAL_MO_SOURCE} \
+            > "${RENDER_AREA_DIR}/$(basename "${f//.in/}")"
+        done
+        ANYTHING_FOUND=true
+      fi
+    done
+
+    if [ "${ANYTHING_FOUND}" = true ]; then
+      if [ -f "${RENDER_AREA_DIR}/${AREA}.post-render.sh" ]; then
+        if ! bash "${RENDER_AREA_DIR}/${AREA}.post-render.sh" > "${RENDER_AREA_DIR}/${AREA}.post-render.log" 2>&1; then
+          error "Failed"
+          error "====== ${AREA}.post-render.log ======"
+          cat "${RENDER_AREA_DIR}/${AREA}.post-render.log"
+          exit 1
+        fi
+        success "Ok (w/post)"
+      else
+        success "Ok"
+      fi
+      
+      echo "$RENDER_STAMP" > "${RENDER_AREA_DIR}/rendered.stamp"
+    else
+      success "Ok (empty)"
+    fi
+
+    if (( STACKLESS_BUILD_CACHE_ENABLED )); then
+      if [ -d "${RENDER_DIR_CACHE}/${AREA}/build" ]; then
+        warning_n " Caution"
+        echo -n " Restoring ${Area} build from cache (disable with --no-cache): "
+        cp -rv "${RENDER_DIR_CACHE}/${AREA}/build" "${RENDER_AREA_DIR}/" > /dev/null
+        success "Ok"
+      fi
+    fi
+  fi
+}
+
+function render_environment {
+  echo -n "Rendering Environment: "
+  echo "${RENDER_STAMP}" > "${RENDER_DIR}/rendered.stamp"
+
+  #############################
+  # Create source.conf ...
+
+  function cat_source {
+    echo
+    echo "###################################################################"
+    echo "# Source file: $1"
+    cat $1
+  }
+
+  # Start source.conf
+  echo "BRANCH=$(git rev-parse --abbrev-ref HEAD)" > "${RENDER_DIR}/source.conf"
+  echo "GID=$(id -g ${USER})" >> "${RENDER_DIR}/source.conf"
+
+  cat_source "${STACKLESS_KEYS_DIR}/ip.${BUILD_TARGET}.conf" | ${MO} --source="${RENDER_DIR}/source.conf" >> "${RENDER_DIR}/source.conf"
+  cat_source "in/version.in.conf" | ${MO} --source="${RENDER_DIR}/source.conf" >> "${RENDER_DIR}/source.conf"
+  cat_source "in/tag.in.conf" | ${MO} --source="${RENDER_DIR}/source.conf" >> "${RENDER_DIR}/source.conf"
+  cat_source "in/env.in.conf" | ${MO} --source="${RENDER_DIR}/source.conf" >> "${RENDER_DIR}/source.conf" 
+
+  cat_source "in/env.${BUILD_TARGET}.in.conf" \
+  | ${MO} --source="in/env.${BUILD_TARGET}.in.conf" \
+  --source="${RENDER_DIR}/source.conf" \
+  >> "${RENDER_DIR}/source.conf"
+
+  cat_source "${STACKLESS_KEYS_DIR}/env.${BUILD_TARGET}.secrets.in.conf" \
+    | ${MO} --source="in/env.${BUILD_TARGET}.in.conf" \
+    --source="${RENDER_DIR}/source.conf" \
+    >> "${RENDER_DIR}/source.conf"
+
+  cat_source "in/deploy-local.docker-compose.in.yml" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/deploy-local.docker-compose.yml"
+
+  cat_source "in/deploy-local.cleanup.in.sh" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/deploy-local.cleanup.sh"
+
+  cat_source "in/deploy-local.create.in.sh" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/deploy-local.create.sh"
+
+  cat_source "in/tests-setup.in.sh" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/tests-setup.sh"
+
+  cat_source "in/tests-cleanup.in.sh" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/tests-cleanup.sh"
+
+  cat_source "in/tests.in.sh" \
+    | ${MO} --source="${RENDER_DIR}/source.conf" \
+    > "${RENDER_DIR}/tests.sh"
+
+  success "Ok"
+}
+
+REUSE_RENDER=0
+
+if (( !IS_ALL_BUILD_AREA )); then  
+  if [ -d "${RENDER_DIR}" ]; then
+    warning "Caution: Re-using rendered environment"
+    REUSE_RENDER=1
+  else
+    error "Must fully render first before partially rendering"
+    exit 1
+  fi
+fi
+
+if (( !REUSE_RENDER )); then
+  rm -rf "${OUT_DIR}"
+  mkdir -p "${RENDER_DIR}"
+fi
+
+render_environment
+render_area native
+render_area native-deps
+render_area serenity
+render_area river
+render_area jayne
+render_area client
+render_area tools
+render_area doc-site
+render_area rediskeys
+render_area accountsdb

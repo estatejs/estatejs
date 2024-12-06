@@ -1,0 +1,4 @@
+{ 
+    "name": "{{ESTATE_TOOLS_PACKAGE_NAME}}",
+    "private": {{ESTATE_TOOLS_PACKAGE_PRIVATE}}
+}

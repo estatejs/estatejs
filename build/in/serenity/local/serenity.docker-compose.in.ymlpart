@@ -1,0 +1,13 @@
+  serenity:
+    healthcheck:
+      test: bash '/serenity/healthy.sh'
+    image: {{ESTATE_SERENITY_DOCKER_IMAGE}}
+    volumes:
+      - ./config:/tmp/config:ro
+    ports:
+      - "{{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}}:{{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}}"
+      - "{{ESTATE_WORKER_PROCESS_PORT_START}}-{{ESTATE_WORKER_PROCESS_PORT_END}}:{{ESTATE_WORKER_PROCESS_PORT_START}}-{{ESTATE_WORKER_PROCESS_PORT_END}}"
+    environment:
+      - ESTATE_SERENITY_LAUNCHER_CONFIG_FILE=/tmp/config/serenity.launcher.config.json
+      - ESTATE_SERENITY_WORKER_LOADER_CONFIG_FILE=/tmp/config/serenity.worker-loader.config.json
+      - ESTATE_SERENITY_WORKER_PROCESS_CONFIG_FILE=/tmp/config/serenity.worker-process.config.json

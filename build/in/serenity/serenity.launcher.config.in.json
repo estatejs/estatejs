@@ -1,0 +1,12 @@
+{
+  "Logging": {
+    "system": "LAUNCHER",
+    "level": "{{ESTATE_LOG_LEVEL}}"
+  },
+  "WorkerProcessTable": {
+    "launcher_wait_secs": 4,
+    "worker_process_wait_secs": 3,
+    "port_start": {{ESTATE_WORKER_PROCESS_PORT_START}},
+    "port_end": {{ESTATE_WORKER_PROCESS_PORT_END}}
+  }
+}

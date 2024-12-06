@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/backend-config: '{"default": "river-backendconfig"}'
+  labels:
+    app: river
+  name: river-service
+spec:
+  type: NodePort
+  ports:
+    - port: {{ESTATE_RIVER_LISTEN_PORT}}
+      targetPort: {{ESTATE_RIVER_LISTEN_PORT}}
+      protocol: TCP
+  selector:
+    app: river

@@ -1,0 +1,39 @@
+{
+  "BufferPool": {
+    "clear_on_get": true
+  },
+  "Logging": {
+    "system": "WORKER-PROCESS:{}",
+    "level": "{{ESTATE_LOG_LEVEL}}"
+  },
+  "Javascript": {
+    "max_heap_size": {{ESTATE_MAX_HEAP_SIZE}}
+  },
+  "DeleteWorkerProcessor": {
+    "shutdown_on_delete": true
+  },
+  "DatabaseManager": {
+    "wal_dir_format": "/var/estate/db/{0}/wal",
+    "data_dir_format": "/var/estate/db/{0}/data",
+    "deleted_file_format": "/var/estate/db/{0}/deleted",
+    "optimize_for_small_db": true
+  },
+  "UserProcessor": {
+    "initial_serialization_buffer_size": 10240
+  },
+  "UserInnerspaceServer": {
+    "listen_ip": "0.0.0.0",
+    "max_request_size": {{ESTATE_MAX_USER_REQUEST}},
+    "max_response_size": {{ESTATE_MAX_USER_RESPONSE}}
+  },
+  "SetupWorkerInnerspaceServer": {
+    "listen_ip": "0.0.0.0",
+    "max_request_size": {{ESTATE_MAX_SETUP_WORKER_REQUEST}},
+    "max_response_size": 100
+  },
+  "DeleteWorkerInnerspaceServer": {
+    "listen_ip": "0.0.0.0",
+    "max_request_size": 100,
+    "max_response_size": 100
+  }
+}

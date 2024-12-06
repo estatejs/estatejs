@@ -1,0 +1,6 @@
+# The worker compiler intermediate output directory should never be included
+.build/
+
+# These must be preserved in source control.
+!worker-runtime/
+!worker.json

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+kubectl scale deployment jayne-deployment --replicas=0
+kubectl scale deployment river-deployment --replicas=0
+kubectl scale statefulset serenity-statefulset --replicas=0

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+function build_area {
+	local area=${1}
+	local Area=$(get_area_pcase $area)
+	if list_includes "${BUILD_AREA}" "${area}"; then
+		if is_area_disabled ${area}; then
+			echo -n "Building ${Area}: "
+      		warning "Disabled"
+      		return
+    	fi
+		export RENDER_AREA_DIR="${RENDER_DIR}/${area}"
+		if [ ! -d "${RENDER_AREA_DIR}" ]; then
+			error "Must render ${Area} first"
+			exit 1
+		fi
+		
+		maybe_run_script_in_area ${area} "build" "Building ${Area} source" || true
+		maybe_run_script_in_area ${area} "docker-build" "Building ${Area} runtime docker image" || true
+	fi
+}
+
+# Native build
+build_area native-deps
+build_area native
+build_area serenity
+build_area river
+
+# C# build
+build_area jayne
+
+# JavaScript build
+build_area client
+build_area tools
+
+build_area doc-site

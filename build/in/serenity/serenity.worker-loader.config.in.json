@@ -1,0 +1,17 @@
+{
+  "BufferPool": {
+    "clear_on_get": true
+  },
+  "Logging": {
+    "system": "WORKER-LOADER",
+    "level": "{{ESTATE_LOG_LEVEL}}"
+  },
+  "GetWorkerProcessEndpointProcessor": {
+  },
+  "GetWorkerProcessEndpointInnerspaceServer": {
+    "listen_ip": "0.0.0.0",
+    "listen_port": {{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}},
+    "max_request_size": 100,
+    "max_response_size": 100
+  }
+}

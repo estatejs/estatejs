@@ -1,0 +1,33 @@
+# remap keypad enter to enter
+# bindkey -s "^[OM" "^M"
+
+# Path to your oh-my-zsh installation.
+DISABLE_AUTO_UPDATE="true"
+export ZSH="${HOME}/.oh-my-zsh"
+
+ZSH_THEME="stackless"
+
+# oh-my-zsh plugins
+plugins=(git)
+
+source $ZSH/oh-my-zsh.sh
+
+#TODO: support different locations in s/build/setup/setup-shell
+export STACKLESS_ROOT_DIR="${HOME}/s"
+export STACKLESS_KEYS_DIR="${HOME}/s-keys"
+source "${HOME}/.stackless.env"
+
+export PATH="${STACKLESS_PLATFORM_DIR}/scripts:${PATH}"
+
+alias all="${STACKLESS_BUILD_DIR}/all"
+alias render="${STACKLESS_BUILD_DIR}/render"
+alias clean="${STACKLESS_BUILD_DIR}/clean"
+alias build="${STACKLESS_BUILD_DIR}/build"
+alias cache-build="${STACKLESS_BUILD_DIR}/cache-build"
+alias deploy="${STACKLESS_BUILD_DIR}/deploy"
+alias tests="${STACKLESS_BUILD_DIR}/tests"
+alias tests-setup="${STACKLESS_BUILD_DIR}/tests-setup"
+alias tests-cleanup="${STACKLESS_BUILD_DIR}/tests-cleanup"
+alias logs="${STACKLESS_BUILD_DIR}/logs"
+alias publish="${STACKLESS_BUILD_DIR}/publish"
+alias shell="${STACKLESS_BUILD_DIR}/shell"

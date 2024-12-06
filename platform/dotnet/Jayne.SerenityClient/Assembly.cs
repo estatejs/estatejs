@@ -1,0 +1,1 @@
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Test.MechSystems.EstateNetwork.SerenityClient")]

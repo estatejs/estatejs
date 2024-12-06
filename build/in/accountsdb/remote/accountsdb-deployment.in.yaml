@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accountsdb-deployment
+  labels:
+    app: accountsdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accountsdb
+  template:
+    metadata:
+      labels:
+        app: accountsdb
+    spec:
+      containers:
+        - image: mysql:5.7
+          name: mysql
+          resources:
+            limits:
+              cpu: 100m
+              memory: 512M
+            requests:
+              cpu: 100m
+              memory: 512M
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: accountsdb-secrets
+                  key: root-password
+            - name: MYSQL_DATABASE
+              value: accounts
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: accountsdb-secrets
+                  key: user-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: accountsdb-secrets
+                  key: user-password
+          ports:
+            - containerPort: 3306
+              name: mysql
+          livenessProbe:
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            periodSeconds: 15
+            exec:
+              command:
+                - "bash"
+                - "-c"
+                - 'mysql -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -h localhost -nsLNE -e "show databases;" 2>/dev/null | grep "${MYSQL_DATABASE}"'
+          readinessProbe:
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            periodSeconds: 15
+            exec:
+              command:
+                - "bash"
+                - "-c"
+                - 'mysql -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -h localhost -nsLNE -e "show databases;" 2>/dev/null | grep "${MYSQL_DATABASE}"'
+          volumeMounts:
+            - name: accountsdb-persistent-storage
+              mountPath: /var/lib/mysql
+              subPath: volume #This is a necessary work-around to mysql not liking the "lost+found" directory.
+      volumes:
+        - name: accountsdb-persistent-storage
+          persistentVolumeClaim:
+            claimName: accountsdb-volumeclaim
+            readOnly: false

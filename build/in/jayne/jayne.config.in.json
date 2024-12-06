@@ -1,0 +1,34 @@
+{
+  "CorsConfig": {
+    "AllowedOrigins": [
+      "{{ESTATE_DOCSITE_URL}}"
+    ]
+  },
+  "LoggingConfig": {
+    "MinLevel": "{{ESTATE_JAYNE_LOG_MIN_LEVEL}}",
+    "SystemLevel": "{{ESTATE_JAYNE_LOG_SYSTEM_LEVEL}}",
+    "MicrosoftHostingLifetimeLevel": "{{ESTATE_JAYNE_LOG_MICROSOFTHOSTINGLIFETIME_LEVEL}}",
+    "MicrosoftAspNetCoreLevel": "{{ESTATE_JAYNE_LOG_MICROSOFTASPNETCORE_LEVEL}}",
+    "MicrosoftEntityFrameworkCoreDatabaseCommandLevel": "{{ESTATE_JAYNE_LOG_MICROSOFTENTITYFRAMEWORKCOREDATABASECOMMAND_LEVEL}}"
+  },
+  "FirebaseConfig": {
+    "FirebaseProject": "{{ESTATE_FIREBASE_PROJECT_ID}}"
+  },
+  "WorkerKeyCacheServiceConfig": {
+    "RedisEndpoint": "tcp://{{ESTATE_REDISKEYS_HOST}}:{{ESTATE_REDISKEYS_PORT}}",
+    "AccountCreationTokenTTL": "01:00:00",
+    "EmailVerifiedTTL": "00:30:00"
+  },
+  "ProtocolSerializerConfig": {
+    "InitialBufferSize": 1024
+  },
+  "AccountsContextConfig": {
+    "ServerVersion": "5.7.30-mysql"
+  },
+  "PlatformLimitsConfig": {
+    "DefaultMaxAccounts": 10000,
+    "DefaultWorkersPerUser": 2,
+    "DefaultMaxWorkers": 100,
+    "UpdateFrequency": "{{ESTATE_JAYNE_LIMITS_UPDATE_FREQUENCY}}"
+  }
+}

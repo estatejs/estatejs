@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+maybe_run_script "${RENDER_DIR}" "tests-cleanup" "Cleaning Up After Tests"

@@ -1,0 +1,25 @@
+{
+  "name": "test-client",
+  "private": "true",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "connect-memory-cap": "estate worker connect memory-cap test-client --ci",
+    "build": "npm run connect-method-and-serialization && npm run connect-exercise-tracker && npm run connect-memory-cap",
+    "connect-exercise-tracker": "estate worker connect exercise-tracker test-client --ci",
+    "connect-method-and-serialization": "estate worker connect method-and-serialization test-client --ci"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.14.10"
+  },
+  "dependencies": {
+    "browser-run": "^9.0.0",
+    "electron": "^15.3.1",
+    "warp-client": "latest",
+    "memory-cap-worker": "file:./.estate/generated-clients/memory-cap",
+    "exercise-tracker-worker": "file:./.estate/generated-clients/exercise-tracker",
+    "method-and-serialization-worker": "file:./.estate/generated-clients/method-and-serialization"
+  }
+}

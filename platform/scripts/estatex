@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cd $STACKLESS_FRAMEWORK_DIR/tools/dist
+./index.js $@

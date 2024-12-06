@@ -1,0 +1,23 @@
+include "../client/model.fbs";
+include "../client/interface.fbs";
+include "../WorkerIndexProto.fbs";
+
+table GetWorkerProcessEndpointRequestProto {
+    log_context:string (required);
+    worker_id:ulong;
+}
+
+table WorkerProcessEndpointProto {
+    setup_worker_port: ushort;
+    delete_worker_port: ushort;
+    user_port: ushort;
+}
+
+union GetWorkerProcessEndpointErrorUnionProto {
+	ErrorCodeResponseProto,
+	WorkerProcessEndpointProto
+}
+
+table GetWorkerProcessEndpointResponseProto {
+	value: GetWorkerProcessEndpointErrorUnionProto;
+}

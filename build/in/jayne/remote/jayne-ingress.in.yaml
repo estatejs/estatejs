@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jayne-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: jayne-ip
+    networking.gke.io/managed-certificates: jayne-managedcertificate
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jayne-service
+            port:
+              number: {{ESTATE_JAYNE_LISTEN_PORT}}

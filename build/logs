@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+if [ ! -d "${LOCAL_DEPLOY_RUN_DIR}" ]; then
+    error "Not running"
+    exit 1
+fi
+
+cd "${LOCAL_DEPLOY_RUN_DIR}"
+if (( FOLLOW_ENABLED )); then
+    docker compose logs -f ${BUILD_AREA}
+else
+    docker compose logs ${BUILD_AREA}
+fi

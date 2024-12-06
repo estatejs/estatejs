@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source "util/.functions.sh"
+
+cd "$(dirname "$0")" || exit 1
+
+if [ "${1}" == "--no-clean" ]; then    
+    echo -n "Cleaning build outputs: "
+    warning "Skipped"
+    shift
+else
+    ./clean --all
+fi
+
+./render ${@}
+./build ${@}
+./deploy ${@}
+./tests-setup ${@}
+./tests ${@}
+./tests-cleanup ${@}

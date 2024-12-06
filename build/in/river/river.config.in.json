@@ -1,0 +1,41 @@
+{
+  "BufferPool": {
+    "clear_on_get": true
+  },
+  "WorkerAuthentication": {
+    "redis_endpoint": "tcp://{{ESTATE_REDISKEYS_HOST}}:{{ESTATE_REDISKEYS_PORT}}",
+    "connection_count": 1,
+    "connection_wait_timeout_ms": 0,
+    "connection_lifetime_ms": 0
+  },
+  "Logging": {
+    "system": "RIVER",
+    "level": "{{ESTATE_LOG_LEVEL}}"
+  },
+  "Processor": {
+    "min_primary_key_length": 1,
+    "max_primary_key_length": 1024
+  },
+  "Outerspace": {
+    "http_session_body_limit": 1024,
+    "http_session_expiration_sec": 30,
+    "websocket_max_request_size": {{ESTATE_MAX_USER_REQUEST}},
+    "websocket_max_response_size": {{ESTATE_MAX_USER_RESPONSE}},
+    "websocket_max_broadcast_size": {{ESTATE_MAX_USER_RESPONSE}},
+    "listen_ip": "0.0.0.0",
+    "listen_port": {{ESTATE_RIVER_LISTEN_PORT}}
+  },
+  "InnerspaceWorkerLoader": {
+    "host": "{{ESTATE_SERENITY_HOST}}",
+    "port": {{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}},
+    "connection_count": 1,
+    "max_request_size": 100,
+    "max_response_size": 100
+  },
+  "InnerspaceClient": {
+    "host": "{{ESTATE_SERENITY_HOST}}",
+    "user_connection_count": 1,
+    "user_max_request_size": {{ESTATE_MAX_USER_REQUEST}},
+    "user_max_response_size": {{ESTATE_MAX_USER_RESPONSE}}
+  }
+}

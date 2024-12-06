@@ -1,0 +1,46 @@
+include "../client/model.fbs";
+include "../client/interface.fbs";
+include "../WorkerIndexProto.fbs";
+
+table DeleteWorkerRequestProto {
+    log_context:string (required);
+    worker_id:ulong;
+    worker_version:ulong;
+}
+
+// If error is empty, it was successful.
+table DeleteWorkerResponseProto {
+	error: ErrorCodeResponseProto;
+}
+
+//For each UserRequest, WorkerProcess will return
+// A single user response.
+// Any messages logged to the console (success or fail).
+// If response isn't an error:
+//  One or more deltas
+//  One or more events
+table WorkerProcessUserResponseProto {
+	response: [ubyte] (nested_flatbuffer: "UserResponseUnionWrapperProto");
+	deltas: [DataDeltaBytesProto];
+    events: [MessageBytesProto];
+	console_log: [ubyte] (nested_flatbuffer: "ConsoleLogProto");
+}
+
+table SetupWorkerRequestProto {
+    log_context:string (required);
+    worker_id:ulong;
+    worker_version:ulong;
+    previous_worker_version:ulong; //0 == is_new
+    worker_index: [ubyte] (required, nested_flatbuffer: "WorkerIndexProto");
+    worker_code: [string] (required); //NOTE: the index of worker_code must match the index of files in WorkerIndexProto.
+}
+
+union SetupWorkerErrorUnionProto {
+	ErrorCodeResponseProto,
+	ExceptionResponseProto
+}
+
+// If error is empty, it was successful.
+table SetupWorkerResponseProto {
+	error: SetupWorkerErrorUnionProto;
+}

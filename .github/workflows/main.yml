@@ -1,0 +1,125 @@
+on: [push]
+
+jobs:
+  build:
+    name: Build job
+    runs-on: ubuntu-22.04
+    env:
+      _BUILD_TYPE: debug
+      _BUILD_TARGET: local
+      _BUILD_FLAGS: ""
+      _DEPLOY_FLAGS: ""
+      _TEST_FLAGS: "--trace"
+      ESTATE_ROOT_DIR: ${{ github.workspace }}
+      ESTATE_KEYS_DIR: "/tmp/secrets"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare Secrets
+        env:
+          ESTATE_SECRETS: ${{ secrets.ESTATE_SECRETS }}
+        # extract secrets to /tmp/secrets
+        run: |
+          echo ${ESTATE_SECRETS} | base64 -d > /tmp/secrets.tgz
+          cd /tmp
+          tar zxvf secrets.tgz
+
+      - name: Render Configuration
+        run: build/render ${_BUILD_TARGET} ${_BUILD_TYPE} all --no-cache
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: latest
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Apt Packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: iproute2 libsnappy-dev zlib1g-dev libzstd-dev libbz2-dev liblz4-dev libprocps-dev xvfb
+          version: 1.0
+      
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
+
+      - name: Cache Native Dependencies
+        uses: actions/cache@v3
+        id: cache-native-dependencies
+        with:
+          path: platform/native/.deps
+          # note: not using OS specific key because 
+          # native code only builds for Linux-x64
+          key: native-deps-20221929
+
+      - name: Build Native Dependencies
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} native-deps
+
+      # TODO: figure out how to prevent ccache from eating up all the build cache
+      # - name: Setup ccache
+      #   uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Build Native
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} native
+
+      - name: Build Serenity Runtime Image
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} serenity
+      
+      - name: Build River Runtime Image
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} river      
+
+      - name: Build Jayne
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} jayne
+
+      - name: Build Client
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} client
+      
+      - name: Build Tools
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} tools
+      
+      - name: Build Doc-Site
+        run: build/build ${_BUILD_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} doc-site
+
+      - name: Deploy For Test Run
+        run: build/deploy ${_DEPLOY_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE} all
+
+      - name: Setup Test Run
+        run: |
+          if ! build/tests-setup ${_TEST_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE}; then
+            build/logs
+            exit 1
+          fi
+
+      - name: Run Tests
+        run: |
+          if ! build/tests ${_TEST_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE}; then
+            build/logs
+            exit 1
+          fi
+
+      - name: Cleanup Test Run
+        if: always()
+        run: |
+          if ! build/tests-cleanup ${_TEST_FLAGS} ${_BUILD_TARGET} ${_BUILD_TYPE}; then
+            build/logs
+            exit 1
+          fi

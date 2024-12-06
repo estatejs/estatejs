@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source "util/.functions.sh"
+
+all=0
+while [ -n "$1" ]; do
+	case "$1" in
+		--all)
+			all=1
+			shift
+		;;
+		*)
+            error "Invalid option: ${1}"
+            exit 1
+		;;
+	esac
+done
+
+echo -n "Cleaning build outputs: "
+rm -rf ${STACKLESS_BUILD_DIR}/out
+rm -rf ${STACKLESS_FRAMEWORK_DIR}/client/dist
+rm -rf ${STACKLESS_FRAMEWORK_DIR}/tools/dist
+rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/project/client/dist
+rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/setup/dist
+rm -rf ${STACKLESS_DOCSITE_DIR}/dist
+rm -rf ${STACKLESS_ROOT_DIR}/.cmake-out
+rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/project/client/.stackless
+rm -f ${STACKLESS_PLATFORM_DIR}/js/test/project/stackless.json
+success "Ok"
+
+(( all )) || read -p "Clear build artifact cache? <y/N> " prompt
+if (( all )) || [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+    echo -n "Removing build artifact cache: "
+    rm -rf ${STACKLESS_BUILD_DIR}/out.cache
+    success "Ok"
+fi
+
+(( all )) || read -p "Delete native dependencies? <y/N> " prompt
+if (( all )) || [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+    echo -n "Deleting native dependencies: "
+    rm -rf ${STACKLESS_NATIVE_DEPS_DIR}
+    success "Ok"
+fi
+
+(( all )) || read -p "Delete native dependencies? <y/N> " prompt
+if (( all )) || [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+    echo -n "Deleting native dependencies: "
+    rm -rf ${STACKLESS_NATIVE_DEPS_DIR}
+    success "Ok"
+fi
+
+(( all )) || read -p "Delete all NodeJS modules? <y/N> " prompt
+if (( all )) || [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+    echo -n "Removing all NodeJS modules: "
+    rm -rf ${STACKLESS_ROOT_DIR}/.pnpm-store > /dev/null
+    rm -rf ${STACKLESS_DOCSITE_DIR}/.pnpm-store > /dev/null
+    rm -rf ${STACKLESS_DOCSITE_DIR}/node_modules > /dev/null
+    rm -rf ${STACKLESS_FRAMEWORK_DIR}/client/.pnpm-store > /dev/null
+    rm -rf ${STACKLESS_FRAMEWORK_DIR}/client/node_modules > /dev/null
+    rm -rf ${STACKLESS_FRAMEWORK_DIR}/tools/.pnpm-store > /dev/null
+    rm -rf ${STACKLESS_FRAMEWORK_DIR}/tools/node_modules > /dev/null
+    rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/setup/.pnpm-store > /dev/null
+    rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/setup/node_modules > /dev/null
+    rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/project/test/client/node_modules > /dev/null
+    rm -rf ${STACKLESS_PLATFORM_DIR}/js/test/project/test/client/.pnpm-store > /dev/null
+    success "Ok"
+fi
+
+(( all )) || read -p "Delete all Docker containers? <y/N> " prompt
+if (( all )) || [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
+then
+    echo -n "Removing all Docker containers: "
+    set +e
+    docker rm -f $(docker ps -aq) > /dev/null 2>&1
+    set -e
+    success "Ok"
+fi

@@ -1,0 +1,165 @@
+
+
+table ConsoleLogMessageProto {
+    message: string (required);
+    error: bool;
+}
+
+table ConsoleLogProto {
+	messages: [ConsoleLogMessageProto];
+}
+
+table ConsoleLogBytesProto {
+    bytes: [ubyte] (nested_flatbuffer: "ConsoleLogProto");
+}
+
+table NestedPropertyProto {
+    name:string (required);
+    value_bytes: [ubyte] (nested_flatbuffer: "ValueProto");
+}
+
+table PropertyProto {
+    name:string (required);
+    value: ValueProto;
+}
+
+union ValueUnionProto { 
+    UndefinedValueProto,
+    NullValueProto,
+    BooleanValueProto, 
+    StringValueProto, 
+    NumberValueProto,
+    ObjectValueProto, 
+    ArrayValueProto,
+    DataReferenceValueProto,
+    ServiceReferenceValueProto,
+    MapValueProto,
+    SetValueProto,
+    DateValueProto
+}
+
+table ValueProto {
+    value: ValueUnionProto;
+}
+
+table UndefinedValueProto {
+}
+
+table NullValueProto {
+}
+
+table BooleanValueProto {
+    value: bool;
+}
+
+table StringValueProto {
+    value: string (required);
+}
+
+table NumberValueProto {
+    value: double;
+}
+
+table ObjectValueProto {
+    properties: [PropertyProto];
+}
+
+table ArrayItemValueProto {
+    index: uint;
+    value: ValueProto;
+}
+
+table ArrayValueProto {
+    items: [ArrayItemValueProto];
+}
+
+table DataReferenceValueProto {
+    class_id: ushort;
+    primary_key: string (required);
+}
+
+table ServiceReferenceValueProto {
+    class_id: ushort;
+    primary_key: string (required);
+}
+
+table MapValueItemProto {
+    key: ValueProto;
+    value: ValueProto;
+}
+
+table MapValueProto {
+    items: [MapValueItemProto];
+}
+
+table SetValueProto {
+    items: [ValueProto];
+}
+
+table DateValueProto {
+    value: double;
+}
+
+union WorkerReferenceUnionProto {
+    DataReferenceValueProto,
+    ServiceReferenceValueProto
+}
+
+table MessageProto {
+    class_id: ushort;
+    source: WorkerReferenceUnionProto (required);
+    properties: [PropertyProto]; //Note: any DataReference values must have a corresponding DataHandleProto
+    //that, in turn, points to a delta that must be restored before this event is handled.
+	referenced_data_handles: [DataHandleProto];
+}
+
+table MessageBytesProto {
+    bytes: [ubyte] (nested_flatbuffer: "MessageProto");
+}
+
+table DataDeltaBytesProto {
+    bytes: [ubyte] (nested_flatbuffer: "DataDeltaProto");
+}
+
+table InboundDataDeltaProto {
+    class_id: ushort;
+    object_version: ulong;
+    primary_key: string (required);
+    properties: [NestedPropertyProto];
+    deleted_properties: [string];
+    //This version doesn't have allow object deletion as it doesn't make sense to allow users
+    // to pass deleted objects to the server. Also, I don't want users to delete objects without
+    // using a service method as this would let them skip updating their indexes.
+}
+
+table DataDeltaProto {
+    class_id: ushort;
+    object_version: ulong;
+    primary_key: string (required);
+    deleted: bool;
+    properties: [NestedPropertyProto];
+    deleted_properties: [string];
+}
+
+table DataHandleProto {
+	class_id: ushort;
+    object_version: ulong;
+    primary_key: string (required);
+}
+
+table DataProto {
+    class_id: ushort;
+    object_version: ulong;
+    primary_key: string (required);
+    deleted: bool;
+    properties:[PropertyProto];
+}
+
+table NestedDataProto {
+    class_id: ushort;
+    object_version: ulong;
+    primary_key: string (required);
+    deleted: bool;
+    properties:[NestedPropertyProto];
+}
+

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+function shell_area {
+  AREA=${1}
+	if list_includes "${BUILD_AREA}" "${AREA}"; then
+		export SHELL_AREA_DIR="${RENDER_DIR}/${AREA}"
+
+		if [ ! -d "${SHELL_AREA_DIR}" ]; then
+			error "Must render ${AREA} first"
+			exit 1
+		fi
+
+		if [ -f "${SHELL_AREA_DIR}/${1}.shell.sh" ]; then
+			pushd "${SHELL_AREA_DIR}" > /dev/null
+			bash "./${1}.shell.sh"
+			if [ ! $? ]; then
+			  error "Failed"
+			  exit 1
+			fi
+			popd > /dev/null
+		else
+			error "Shell script ${SHELL_AREA_DIR}/${1}.shell.sh does not exist"
+			exit 1
+		fi
+	fi
+}
+
+shell_area native-dev
+shell_area serenity
+shell_area river
+
+shell_area dotnet-dev
+shell_area jayne
+
+shell_area js-dev
+shell_area client
+shell_area tools
+
+shell_area worker-dev
+shell_area doc-site

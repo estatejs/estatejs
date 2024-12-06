@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+function cache_build {
+  local area=${1}
+  local Area=$(get_area_pcase $area)
+    if list_includes "${BUILD_AREA}" "${area}"; then
+        local msg="Caching build artifacts for ${Area}: "
+        if is_area_disabled ${area}; then
+            echo -n "${msg}"
+            warning "Disabled"
+            return
+        fi
+
+        RENDER_AREA_DIR="${RENDER_DIR}/${area}"
+        RENDER_AREA_CACHE_DIR="${RENDER_DIR_CACHE}/${area}"
+
+        if [ ! -d "${RENDER_AREA_DIR}/build" ]; then
+            error "Must build ${Area} first"
+            return
+        fi
+
+        echo -n "${msg}"
+        mkdir -p "${RENDER_AREA_CACHE_DIR}" > /dev/null
+        rm -rf "${RENDER_AREA_CACHE_DIR}/build" > /dev/null
+        cp -rv "${RENDER_AREA_DIR}/build" "${RENDER_AREA_CACHE_DIR}/"  > /dev/null
+        success "Ok"
+    fi
+}
+
+#note: Serenity and River are not cacheable because their builds build their runtime docker containers.
+# The native build contains their build artifacts.
+
+cache_build client
+cache_build doc-site
+cache_build jayne
+cache_build native
+cache_build tools

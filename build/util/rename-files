@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -e
+real=0
+
+function _rename {
+    pattern=${1}
+    search=${2}
+    replace=${3}
+    flags=${4}
+    echo "${pattern} - ${search} to ${replace}"
+    for f in `find . ${flags} -name "${pattern}"`
+    do 
+        echo " ${f} ->"
+        x="$(echo ${f} | sed s/${search}/${replace}/)"
+        echo " ${x}"
+        if (( real )); then
+            mv ${f} ${x}
+        fi
+    done
+} 
+
+function rename {
+    search="${1}"
+    replace="${2}"
+    _rename "${search}" "${search}" "${replace}" "-type f"
+    _rename "*${search}" "${search}" "${replace}" "-type f"
+    _rename "${search}*" "${search}" "${replace}" "-type f"
+    _rename "*${search}*" "${search}" "${replace}" "-type f"
+    _rename "${search}" "${search}" "${replace}" "-type d"
+    _rename "*${search}" "${search}" "${replace}" "-type d"
+    _rename "${search}*" "${search}" "${replace}" "-type d"
+    _rename "*${search}*" "${search}" "${replace}" "-type d"
+}

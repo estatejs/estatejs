@@ -1,0 +1,20 @@
+include "../client/model.fbs";
+
+table CellProto {
+    checksum: uint;
+    value_bytes: [ubyte] (nested_flatbuffer: "ValueProto");
+}
+
+table EngineSourceProto {
+	code_files: [string]; //index must be file_id - 1.
+}
+
+table ObjectInstanceProto {
+	version: ulong;
+	deleted: bool;
+	type: ubyte;
+}
+
+table ObjectPropertiesIndexProto {
+	properties: [string];
+}

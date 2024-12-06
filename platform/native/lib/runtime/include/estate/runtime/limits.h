@@ -1,0 +1,15 @@
+//
+// Created by scott on 5/24/20.
+//
+
+#pragma once
+
+#define ESTATE_MIN_WORKER_ID (1)
+#define ESTATE_MIN_CLASS_ID (1)
+#define ESTATE_MIN_METHOD_ID (1)
+#define ESTATE_MIN_WORKER_VERSION (1)
+#define ESTATE_MIN_REQUEST_ID (1)
+#define ESTATE_USER_KEY_LENGTH (256)
+//NOTE: THIS MUST MATCH THE FRONT-END AND THE OTHER SERVICES so don't change it without updating everything.
+#define ESTATE_LOG_CONTEXT_LENGTH (10)
+#define ESTATE_JAVASCRIPT_ISOLATE_MAX_STACKSIZE (500 * 1024)

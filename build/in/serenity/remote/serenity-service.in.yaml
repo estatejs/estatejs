@@ -1,0 +1,16 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: serenity-service
+  labels:
+    app: "serenity"
+spec:
+  clusterIP: None
+  selector:
+    app: "serenity"
+  ports:
+  - name: gwse #gwse = get-worker-process-endpoint
+    protocol: TCP
+    port: {{ESTATE_SERENITY_GET_WORKER_PROCESS_ENDPOINT_PORT}}
+  # NOTE: spec.ports must remain the last element in this file because I'm appending worker process port definitions in serenity.post-render.in.sh.

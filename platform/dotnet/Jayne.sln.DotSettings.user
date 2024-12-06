@@ -1,0 +1,26 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Fd_003AConfig_002Ff_003ABuiltInAccountSecrets_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Fd_003AConfig_002Ff_003AWorkerKeyCacheServiceConfig_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Fd_003ASystems_002Fd_003AImpl_002Ff_003ADeveloperAccountSystemImpl_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Fd_003ASystems_002Fd_003AImpl_002Ff_003AWorkerAdminSystemImpl_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Ff_003AStartup_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=04A05CD4_002DE719_002D4662_002D974D_002D5F002D0B5507_002Ff_003AVersion_005FGenerated_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateInstanceFields/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="_" Suffix="" Style="aaBb" /&gt;</s:String>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;
+  &lt;Assembly Path="/home/scott/.nuget/packages/v8.net/1.1.8/lib/netstandard2.0/V8.Net.dll" /&gt;
+  &lt;Assembly Path="/usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/System.ComponentModel.Annotations.dll" /&gt;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1ee5434d_002De2b7_002D448f_002Da589_002D131776bfc732/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateSerenityTestWorkerIndexes" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::EE437D0A-1E19-479C-A5EB-E2C2A9225241::.NETCoreApp,Version=v3.1::Estate.Jayne.UnitTests.Util_SerenityTestWorkerIndexCreator.CreateSerenityTestWorkerIndexes&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::EE437D0A-1E19-479C-A5EB-E2C2A9225241::.NETCoreApp,Version=v3.1::Estate.Jayne.UnitTests.SetupWorkerTest.CanSetupWorkerAsync&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	</wpf:ResourceDictionary>

@@ -1,0 +1,17 @@
+resources:
+  - jayne-deployment.yaml
+  - jayne-service.yaml
+  - jayne-ingress.yaml
+  - jayne-managedcertificate.yaml
+configMapGenerator:
+  - name: jayne-configmap
+    files:
+      - "jayne.config.json"
+      - "jayne.serenity-client.config.json"
+secretGenerator:
+  - name: jayne-secrets
+    files:
+      - "jayne.secrets.json"
+  - name: jayne-firebase-secrets
+    files:
+      - "build/secrets/{{ESTATE_FIREBASE_KEY_FILE}}"

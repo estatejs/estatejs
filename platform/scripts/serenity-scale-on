@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+kubectl scale statefulset serenity-statefulset --replicas=1

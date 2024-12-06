@@ -1,0 +1,5 @@
+resources:
+  - accountsdb-secrets.yaml
+  - accountsdb-volumeclaim.yaml
+  - accountsdb-service.yaml
+  - accountsdb-deployment.yaml

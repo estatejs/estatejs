@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+
+function k_wait_rollout {
+  local ITEM=$1
+  local TIME=$2 #Ns format, numbers with suffix (s = seconds)
+  if [ -z "${ITEM}" ] || [ -z "${TIME}" ]; then
+	error "k_wait_rollout <what_to_wait_for> <time to wait, Ns format (numbers with suffix) eg. 500s>"
+	exit 1
+  fi
+  echo -n "Waiting up to ${TIME} for ${ITEM} to become available: "
+  kubectl rollout status --watch --timeout="${TIME}" "${ITEM}"
+  success "Ok"
+}
+
+export -f k_wait_rollout
+
+function k_wait_deployment {
+  local DEPLOYMENT=$1
+  local TIME=$2 #Ns format, numbers with suffix (s = seconds)
+  if [ -z "${DEPLOYMENT}" ] || [ -z "${TIME}" ]; then
+	error "k_wait_deployment <what_to_wait_for> <time to wait, Ns format (numbers with suffix) eg. 500s>"
+	exit 1
+  fi
+  echo -n "Waiting up to ${TIME} for ${DEPLOYMENT} to become available: "
+  kubectl wait --for=condition=available --timeout="${TIME}" "deployments/${DEPLOYMENT}"
+  success "Ok"
+}
+
+export -f k_wait_deployment
+
+function k_wait_ingress {
+  local INGRESS=$1
+  local TIMEOUT_SECS=$2 #NOTE: Doesn't have a letter suffix. It's just the number of seconds.
+  local EXPECTED_IP=$3
+  local COUNT=0;
+
+  echo -n "Waiting up to ${TIMEOUT_SECS} seconds for ${INGRESS} to have a public IP"
+
+  local IP
+  until IP=$(kubectl get ingress "${INGRESS}" --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}" | grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)") || [[ ${COUNT} -eq ${TIMEOUT_SECS} ]]; do
+	((COUNT++))
+	if (( COUNT % 10 == 0 )); then
+	  echo -n "${COUNT}"
+	else
+	  echo -n "."
+	fi
+	sleep 1
+  done
+
+  if [[ ${COUNT} -eq ${TIMEOUT_SECS} ]]; then
+	error "Timed out after at least ${TIMEOUT_SECS}"
+	return 1
+  fi
+
+  if [ "${IP}" != "${EXPECTED_IP}" ]; then
+	error "Expected the ip address ${EXPECTED_IP} but found ${IP}."
+	return 1
+  fi
+
+  return 0
+}
+
+export -f k_wait_ingress
+
+function show_message_when_disabled {
+	local area=${1}
+	local Area=$(get_area_pcase $area)
+	if list_includes "${BUILD_AREA}" "${area}"; then
+		if is_area_disabled ${area}; then
+			echo -n "Deploying ${Area}: "
+			warning "Disabled"
+			return
+		fi
+	fi
+}
+
+function deploy_local_stage {
+  local area=${1}
+  local Area=$(get_area_pcase $area)
+	if list_includes "${BUILD_AREA}" "${area}"; then
+	if is_area_disabled ${area}; then
+	  return
+	fi
+	export RENDER_AREA_DIR="${RENDER_DIR}/${area}"
+	if [ ! -d "${RENDER_AREA_DIR}" ]; then
+			error "Must render ${Area} first"
+			exit 1
+		fi
+	maybe_run_script_in_area ${area} "deploy-local.stage" "Staging ${Area} local deployment" || true
+	fi
+}
+
+function deploy_local_start {
+  local area=${1}
+  local Area=$(get_area_pcase $area)
+	if list_includes "${BUILD_AREA}" "${area}"; then
+		if is_area_disabled ${area}; then
+	  return
+	fi
+	export RENDER_AREA_DIR="${RENDER_DIR}/${area}"
+	if [ ! -d "${RENDER_AREA_DIR}" ]; then
+			error "Must render ${Area} first"
+			exit 1
+		fi
+	maybe_run_script_in_area ${area} "deploy-local.start" "Starting ${Area} local deployment" || true
+	fi
+}
+
+function remote_deploy {
+  local area=$1
+  local Area=$(get_area_pcase $area)
+	if list_includes "${BUILD_AREA}" "${area}"; then
+	if is_area_disabled ${area}; then
+	  return
+	fi
+
+		export RENDER_AREA_DIR="${RENDER_DIR}/${area}"
+
+	if [ ! -d "${RENDER_AREA_DIR}" ]; then
+			error "Must render ${Area} first"
+			exit 1
+		fi
+
+	if maybe_run_script_in_area ${area} "deploy" "Deploying ${Area}"; then
+	  ANYTHING_TO_DEPLOY=true
+	fi
+
+	maybe_run_script_in_area ${area} "docker-push" "Pushing ${Area} docker image" || true
+	maybe_run_script_in_area ${area} "kubernetes-apply" "Applying ${Area} kubernetes changes" || true
+	maybe_run_script_in_area ${area} "post-deployment" "Running ${Area} post-deployment" || true
+
+		if [ "${ANYTHING_TO_DEPLOY}" = false ]; then
+		  error "Nothing to deploy"
+		  exit 1
+		fi
+	fi
+}
+
+show_message_when_disabled accountsdb
+show_message_when_disabled rediskeys
+show_message_when_disabled serenity
+show_message_when_disabled jayne
+show_message_when_disabled river
+show_message_when_disabled doc-site
+
+if (( IS_LOCAL )); then
+  pushd "${RENDER_DIR}" > /dev/null
+
+  if [ -d ${LOCAL_DEPLOY_RUN_DIR} ] || [ -d ${LOCAL_DEPLOY_STAGE_DIR} ]; then
+	maybe_run_script "${RENDER_DIR}" "deploy-local.cleanup" "Cleaning up previous deployment" || true
+  fi
+
+  deploy_local_stage accountsdb
+  deploy_local_stage rediskeys
+  deploy_local_stage serenity
+  deploy_local_stage jayne
+  deploy_local_stage river
+  deploy_local_stage doc-site
+
+  maybe_run_script "${RENDER_DIR}" "deploy-local.create" "Creating local deployment"
+
+  deploy_local_start accountsdb
+  deploy_local_start rediskeys
+  deploy_local_start serenity
+  deploy_local_start jayne
+  deploy_local_start river
+  deploy_local_start doc-site
+else
+  if ! bash "${UTIL_DIR}/gcr_login.sh" "${BUILD_TARGET}" "${BUILD_TYPE_L}" > "${RENDER_DIR}/gcr_login.log" 2>&1; then
+	error "gcr_login failed"
+	error "====== gcr_login.log ======"
+	cat "${RENDER_DIR}/gcr_login.log"
+	exit 1
+  fi
+
+  if ! bash "${UTIL_DIR}/get_sandbox_cluster_credentials.sh" "${BUILD_TARGET}" "${BUILD_TYPE_L}" > "${RENDER_DIR}/get_sandbox_cluster_credentials.log" 2>&1; then
+	error "get_sandbox_cluster_credentials failed"
+	error "====== get_sandbox_cluster_credentials.log ======"
+	cat "${RENDER_DIR}/get_sandbox_cluster_credentials.log"
+	exit 1
+  fi
+
+  remote_deploy accountsdb AccountsDB
+  remote_deploy rediskeys RedisKeys
+  remote_deploy serenity Serenity
+  remote_deploy jayne Jayne
+  remote_deploy river River
+  remote_deploy doc-site Doc-Site
+
+  if ! bash "${UTIL_DIR}/gcr_logout.sh" "${BUILD_TARGET}" "${BUILD_TYPE_L}" >  "${RENDER_DIR}/gcr_logout.log" 2>&1; then
+	error "gcr_logout failed"
+	error "====== gcr_logout.log ======"
+	cat "${RENDER_DIR}/gcr_logout.log"
+	exit 1
+  fi
+fi

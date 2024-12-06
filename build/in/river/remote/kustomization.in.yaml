@@ -1,0 +1,10 @@
+resources:
+  - river-deployment.yaml
+  - river-service.yaml
+  - river-ingress.yaml
+  - river-backendconfig.yaml
+  - river-managedcertificate.yaml
+configMapGenerator:
+  - name: river-configmap
+    files:
+      - "river.config.json"

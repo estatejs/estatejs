@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jayne-deployment
+  labels:
+    app: jayne
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jayne
+  template:
+    metadata:
+      labels:
+        app: jayne
+    spec:
+      containers:
+      - name: jayne
+        image: "{{ESTATE_GCR_HOST}}/{{ESTATE_GCP_PROJECT}}/{{ESTATE_JAYNE_DOCKER_IMAGE}}"
+        ports:
+        - containerPort: {{ESTATE_JAYNE_LISTEN_PORT}}
+          name: jayne-port
+        livenessProbe:
+          httpGet:
+            path: /
+            port: jayne-port
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: jayne-port
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512M
+          requests:
+            cpu: 200m
+            memory: 512M
+        env:
+          - name: "ESTATE_JAYNE_CONFIG_FILE"
+            value: "/etc/estate/config/jayne.config.json"
+          - name: "ESTATE_JAYNE_SECRETS_FILE"
+            value: "/etc/estate/secrets/jayne.secrets.json"
+          - name: "ESTATE_SERENITY_CLIENT_CONFIG_FILE"
+            value: "/etc/estate/config/jayne.serenity-client.config.json"
+          - name: "GOOGLE_APPLICATION_CREDENTIALS"
+            value: "/etc/estate/firebase-secrets/{{ESTATE_FIREBASE_KEY_FILE}}"
+        securityContext:
+            capabilities:
+              add: ["IPC_LOCK"]
+        volumeMounts:
+          - name: "jayne-config-volume"
+            mountPath: /etc/estate/config
+            readOnly: true
+          - name: "jayne-firebase-secrets-volume"
+            mountPath: /etc/estate/firebase-secrets
+            readOnly: true
+          - name: "jayne-secrets-volume"
+            mountPath: /etc/estate/secrets
+            readOnly: true
+      volumes:
+        - name: "jayne-config-volume"
+          configMap:
+            name: "jayne-configmap"
+        - name: "jayne-secrets-volume"
+          secret:
+            secretName: "jayne-secrets"
+        - name: "jayne-firebase-secrets-volume"
+          secret:
+            secretName: "jayne-firebase-secrets"

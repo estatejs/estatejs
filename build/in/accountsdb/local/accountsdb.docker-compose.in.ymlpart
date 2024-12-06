@@ -1,0 +1,9 @@
+  accountsdb:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ESTATE_ACCOUNTS_DB_ROOT_PASSWORD}}
+      - MYSQL_DATABASE=accounts
+      - MYSQL_USER={{ESTATE_ACCOUNTS_DB_USER}}
+      - MYSQL_PASSWORD={{ESTATE_ACCOUNTS_DB_PASSWORD}}

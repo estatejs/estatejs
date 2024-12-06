@@ -1,0 +1,23 @@
+// THIS FILE WAS CODE GENERATED
+
+#pragma once
+
+#include <cassert>
+#include "numeric_types.h"
+
+#define GET_CODE_VALUE(c) (CodeV)(c)
+
+namespace {{{NAMESPACE}}} {
+    using CodeV = u16;
+    enum class {{{NAME}}} : CodeV {
+{{{KEYS}}}
+    };
+
+    inline const char* get_code_name(Code c) {
+        switch (c) {
+{{{KEY_STRING_MAPPINGS}}}
+            default:
+                assert(false); //not found
+        }
+    }
+}

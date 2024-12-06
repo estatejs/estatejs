@@ -1,0 +1,15 @@
+This is a worker source code directory.
+- You can add any kind of file here but only .js, .mjs, and .ts files may
+contain source code.
+
+After you make changes to your worker source code run:
+$ estate worker deploy
+- This makes the worker live at the new version.
+
+Generate client connection code to a live worker:
+$ estate worker connect
+- This works on npm-based projects housed in the '[projectRoot]/client' or
+'[projectRoot]/clients/<name>' directories.
+
+To list the live workers on your account:
+$ estate worker list

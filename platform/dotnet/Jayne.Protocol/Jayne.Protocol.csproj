@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace></RootNamespace>
+        <Nullable>disable</Nullable>
+        <Title>Estate Protocol</Title>
+        <Authors>Scott Jones</Authors>
+        <Company>Warpdrive Technologies, Inc.</Company>
+        <Product>Estate Protocol</Product>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <AssemblyName>Estate.Jayne.Protocol</AssemblyName>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>TRACE;ENABLE_SPAN_T</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>TRACE;ENABLE_SPAN_T</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\native\.deps\flatbuffers\net\FlatBuffers\FlatBuffers.csproj" />
+    </ItemGroup>
+    
+</Project>

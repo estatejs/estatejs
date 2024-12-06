@@ -1,0 +1,10 @@
+resources:
+  - serenity-service.yaml
+  - serenity-statefulset.yaml
+  - serenity-storageclass.yaml
+configMapGenerator:
+  - name: serenity-configmap
+    files:
+      - "serenity.launcher.config.json"
+      - "serenity.worker-loader.config.json"
+      - "serenity.worker-process.config.json"

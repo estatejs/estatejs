@@ -1,0 +1,4 @@
+# Worker source config, must be stored in source control.
+!**/worker.json
+# Worker backend stubs, also must be stored in source control.
+!**/worker-runtime/

@@ -1,0 +1,13 @@
+// THIS FILE WAS CODE GENERATED
+
+export enum {{{NAME}}} {
+{{{KEYS}}}
+}
+
+export function get{{{NAME}}}Name(code: {{{NAME}}}) {
+    switch (code) {
+{{{KEY_NAME_CASES}}}
+        default:
+            return `InternalError(${code})`;
+    }
+}

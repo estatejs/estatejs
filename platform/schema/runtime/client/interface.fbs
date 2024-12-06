@@ -1,0 +1,150 @@
+include "model.fbs";
+
+table CallServiceMethodRequestProto {
+    class_id: ushort;
+    primary_key: string (required);
+    method_id: ushort;
+    arguments: [ValueProto];
+    referenced_data_deltas: [InboundDataDeltaProto];
+}
+
+table CallServiceMethodResponseProto {
+    return_value: ValueProto;
+}
+
+table ErrorCodeResponseProto {
+    error_code: ushort;
+}
+
+table ExceptionResponseProto {
+    stack: string;
+    message: string;
+}
+
+table GetDataRequestProto {
+    class_id: ushort;
+    primary_key: string (required);
+}
+
+table GetDataResponseProto {
+    data: [NestedDataProto];
+}
+
+table MessageMessageProto {
+	event: MessageBytesProto (required);
+	deltas: [DataDeltaBytesProto];
+}
+
+table DataUpdateMessageProto {
+    deltas: [DataDeltaBytesProto] (required);
+}
+
+union UserMessageUnionProto { 
+	DataUpdateMessageProto,
+	MessageMessageProto
+}
+
+//can't nest unions directly so I've got to wrap it in a table
+table UserMessageUnionWrapperProto {
+	value: UserMessageUnionProto;
+}
+
+table UserMessageUnionWrapperBytesProto {
+	bytes: [ubyte] (nested_flatbuffer: "UserMessageUnionWrapperProto");
+}
+
+table RiverUserMessageProto {
+	log_context: string (required);
+	worker_id: ulong;
+    worker_version: ulong;
+	message: UserMessageUnionWrapperBytesProto;
+}
+
+union UserResponseUnionProto {
+	ErrorCodeResponseProto,
+	ExceptionResponseProto,
+	CallServiceMethodResponseProto,
+	GetDataResponseProto,
+	SaveDataResponseProto,
+	SubscribeMessageResponseProto,
+	UnsubscribeMessageResponseProto,
+	SubscribeDataUpdatesResponseProto,
+	UnsubscribeDataUpdatesResponseProto
+}
+
+table UserResponseUnionWrapperProto {
+	value: UserResponseUnionProto;
+}
+
+table UserResponseUnionWrapperBytesProto {
+	bytes: [ubyte] (nested_flatbuffer: "UserResponseUnionWrapperProto");
+}
+
+//For each UserRequest, River will respond with:
+// A single response.
+// If the response isn't an error, zero or more messages.
+// Any messages logged to the console.
+table RiverUserResponseProto {
+	response: UserResponseUnionWrapperBytesProto;
+	messages: [UserMessageUnionWrapperBytesProto];
+	console_log: ConsoleLogBytesProto;
+}
+
+//Saves the list of worker objects to the database.
+//This does not return deltas to the caller.
+table SaveDataRequestProto {
+	data_deltas: [InboundDataDeltaProto] (required);
+}
+
+table SaveDataResponseProto {
+	handles: [DataHandleProto] (required);
+}
+
+table SubscribeMessageRequestProto {
+	class_id: ushort;
+	source: WorkerReferenceUnionProto (required);
+}
+
+table SubscribeMessageResponseProto {
+}
+
+table SubscribeDataUpdatesRequestProto {
+	references: [DataReferenceValueProto] (required);
+}
+
+table SubscribeDataUpdatesResponseProto {
+}
+
+table UnsubscribeMessageRequestProto {
+	class_id: ushort;
+	source: WorkerReferenceUnionProto (required);
+}
+
+table UnsubscribeMessageResponseProto {
+}
+
+table UnsubscribeDataUpdatesRequestProto {
+	references: [DataReferenceValueProto] (required);
+}
+
+table UnsubscribeDataUpdatesResponseProto {
+}
+
+union UserRequestUnionProto {
+	CallServiceMethodRequestProto,
+	GetDataRequestProto,
+	SaveDataRequestProto,
+	SubscribeMessageRequestProto,
+	UnsubscribeMessageRequestProto,
+	SubscribeDataUpdatesRequestProto,
+	UnsubscribeDataUpdatesRequestProto
+}
+
+table UserRequestProto {
+	protocol_version: ubyte;
+	log_context: string (required);
+	worker_id: ulong;
+    worker_version: ulong;
+	request: UserRequestUnionProto;
+}
+

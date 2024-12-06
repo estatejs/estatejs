@@ -1,0 +1,26 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:34568",
+      "sslPort": 44351
+    }
+  },
+  "profiles": {
+    "Jayne": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:8100",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/home/scott/s/keys/firebase-local.json",
+        "ESTATE_SERENITY_CLIENT_DIR": "/home/scott/s/platform/build/out/local.debug/serenity/build/client-lib",
+        "ESTATE_JAYNE_CONFIG_FILE": "/home/scott/s/platform/build/out/local.debug/jayne/jayne.config.json",
+        "ESTATE_JAYNE_SECRETS_FILE": "/home/scott/s/platform/build/out/local.debug/jayne/jayne.secrets.json",
+        "ESTATE_SERENITY_CLIENT_CONFIG_FILE": "/home/scott/s/platform/build/out/local.debug/jayne/jayne.serenity-client.config.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+  river:
+    healthcheck:
+      test: curl -f http://localhost:{{ESTATE_RIVER_LISTEN_PORT}}
+    image: {{ESTATE_RIVER_DOCKER_IMAGE}}
+    volumes:
+      - ./config:/tmp/config:ro
+    ports:
+      - "{{ESTATE_RIVER_LISTEN_PORT}}:{{ESTATE_RIVER_LISTEN_PORT}}"
+    environment:
+      - ESTATE_RIVER_CONFIG_FILE=/tmp/config/river.config.json

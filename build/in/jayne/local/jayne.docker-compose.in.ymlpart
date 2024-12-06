@@ -1,0 +1,18 @@
+  jayne:
+    healthcheck:
+      test: curl -f http://localhost:{{ESTATE_JAYNE_LISTEN_PORT}}
+    image: {{ESTATE_JAYNE_DOCKER_IMAGE}}
+    depends_on:
+      - "accountsdb"
+      - "rediskeys"
+    volumes:
+      - ./config:/tmp/config:ro
+      - ./secrets:/tmp/secrets:ro
+    ports:
+      - "{{ESTATE_JAYNE_LISTEN_PORT}}:{{ESTATE_JAYNE_LISTEN_PORT}}"
+    environment:
+      - ESTATE_JAYNE_CONFIG_FILE=/tmp/config/jayne.config.json
+      - ESTATE_JAYNE_SECRETS_FILE=/tmp/secrets/jayne.secrets.json
+      - ESTATE_SERENITY_CLIENT_CONFIG_FILE=/tmp/config/jayne.serenity-client.config.json
+      - ESTATE_SERENITY_CLIENT_DIR=/usr/local/lib
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/secrets/jayne.{{ESTATE_FIREBASE_KEY_FILE}}

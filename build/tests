@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")" || exit 1
+source ./.preamble.sh
+if [ ! -f "${RENDER_DIR}/tests-setup.log" ]; then
+  error "Must run test setup first"
+  exit 1
+fi
+maybe_run_script "${RENDER_DIR}" "tests" "Running Tests"

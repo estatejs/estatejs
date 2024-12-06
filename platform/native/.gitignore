@@ -1,0 +1,3 @@
+cmake-build-*/
+generated_test_data/
+.deps/

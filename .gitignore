@@ -1,0 +1,4 @@
+.idea/*
+!.idea/cmake.xml
+.pnpm-store/
+.vscode/
